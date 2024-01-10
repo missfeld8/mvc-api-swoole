@@ -1,0 +1,14 @@
+{
+    "name": "root/mvc-api",
+    "autoload": {
+        "psr-4": {
+            "Root\\MvcApi\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "mateus"
+        }
+    ],
+    "require": {}
+}
