@@ -31,7 +31,7 @@ $userController = new UserController($userModel);
 
 $router->get('/get', [$articleController, 'getAll']);
 $router->get('/find/{id}', [$articleController, 'getById']);
-$router->post('/create', [$articleController, 'create']);
+$router->post('/create', [$articleController, 'createArticle']);
 $router->post('/update/{id}', [$articleController, 'update']);
 $router->post('/delete/{id}', [$articleController, 'delete']);
 $router->post('/create-user', [$userController, 'create']);

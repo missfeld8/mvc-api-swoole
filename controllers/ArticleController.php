@@ -46,30 +46,57 @@ class ArticleController
     }
 }
 
+private function isValid($data, $checkId = false)
+{
+    $errors = [];
+
+
+    // Verifica se todos os campos estão presentes
+    $requiredFields = ['name', 'article_body', 'author', 'author_avatar'];
+
+    foreach ($requiredFields as $field) {
+        if (!isset($data[$field]) || strlen(trim($data[$field])) === 0) {
+            $errors[$field] = "O campo $field é obrigatório";
+        }
+    }
+
+    $this->errors = $errors;
+
+    return empty($errors);
+}
+
+
+
 public function createArticle(Swoole\Http\Request $request, Swoole\Http\Response $response)
 {
     try {
-        $data = $request->post;
+        $contentType = $request->header['content-type'];
+        $data = [];
 
-        $requiredFields = ['name', 'article_body', 'author', 'author_avatar'];
-        if (array_diff($requiredFields, array_keys($data)) === []) {
-            if (array_filter($data) === $data) {
-                $result = $this->articleModel->createArticle($data);
+        if (strpos($contentType, 'application/json') !== false) {
+            // Se o conteúdo for JSON, decodifique diretamente
+            $jsonString = $request->rawContent();
+            $data = json_decode($jsonString, true);
+        } elseif (strpos($contentType, 'application/x-www-form-urlencoded') !== false) {
+            // Se for dados de formulário, use $request->post
+            $data = $request->post;
+        }
 
-                if ($result) {
-                    $response->header('Content-Type', 'application/json; charset=utf-8');
-                    $response->write(json_encode(['status' => 201, 'message' => 'Registro criado com sucesso']));
-                } else {
-                    $response->status(500);
-                    $response->write(json_encode(['status' => 500, 'message' => 'Erro ao criar o registro']));
-                }
+        // Verifica se todos os campos estão preenchidos
+        if ($this->isValid($data)) {
+            $result = $this->articleModel->createArticle($data);
+
+            if ($result) {
+                $response->header('Content-Type', 'application/json; charset=utf-8');
+                $response->write(json_encode(['status' => 201, 'message' => 'Registro criado com sucesso']));
             } else {
-                $response->status(400);
-                $response->write(json_encode(['status' => 400, 'message' => 'Os valores não podem estar vazios']));
+                $response->status(500);
+                $response->write(json_encode(['status' => 500, 'message' => 'Erro ao criar o registro']));
             }
         } else {
+            // Em caso de erro na validação
             $response->status(400);
-            $response->write(json_encode(['status' => 400, 'message' => 'Parâmetros inválidos']));
+            $response->write(json_encode(['status' => 400, 'errors' => $this->errors]));
         }
     } catch (PDOException $e) {
         $response->status(500);
@@ -79,6 +106,8 @@ public function createArticle(Swoole\Http\Request $request, Swoole\Http\Response
         $response->end();
     }
 }
+
+
 
 
 public function updateArticle(Swoole\Http\Request $request, Swoole\Http\Response $response, $id)
