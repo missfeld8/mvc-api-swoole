@@ -7,7 +7,7 @@ services:
     privileged: true
     volumes: 
       - ./:/var/www/
-    command: sh -c 'php bin/server.php'
+    command: sh -c 'composer install && php bin/server.php'
     ports:
       - '9504:9504'
     depends_on: 
