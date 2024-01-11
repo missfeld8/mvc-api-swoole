@@ -1,6 +1,8 @@
 <?php
 
-class ArticleModel
+namespace Root\MvcApi\DAO;
+
+class ArticleDAO
 {
     private $db;
 

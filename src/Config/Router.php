@@ -1,5 +1,7 @@
 <?php
 
+namespace Root\MvcApi\Config;
+
 use Swoole\Http\Request;
 use Swoole\Http\Response;
 
